@@ -4,9 +4,20 @@ from Shop.models import ShopItem, ItemImage, Cart, Favorites
 
 class ShopItemImagesSerializers(serializers.ModelSerializer):
     """ Serializer фотографий продукта """
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = ItemImage
         fields = ['id', 'image']
+
+    def get_image(self, item):
+        request = self.context.get('request')
+        if request:
+            image = item.image.url
+            return request.build_absolute_uri(image)
+        else:
+            # Временное решение
+            return f'http://localhost:8000{item.image.url}'
 
 
 class ShopItemSerializer(serializers.HyperlinkedModelSerializer):

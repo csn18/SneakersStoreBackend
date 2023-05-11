@@ -1,19 +1,18 @@
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import permissions, status
 from rest_framework.response import Response
 
-import Shop
-from Shop.serializers import ShopItemSerializer, CartSerializer, \
-    FavoritesSerializer
+from Shop.serializers import (
+    ShopItemSerializer, CartSerializer, FavoritesSerializer
+)
 from Shop.models import ShopItem, Cart, Favorites
 
 
 class ShopItemView(ModelViewSet):
     queryset = ShopItem.objects.all()
     serializer_class = ShopItemSerializer
-    permission_classes = [permissions.IsAuthenticated]
 
 
 class CartView(APIView):
@@ -23,7 +22,7 @@ class CartView(APIView):
         """ Возвращает корзину пользователя """
         user = self.request.user
         cart = Cart.objects.filter(owner=user.id).first()
-        serializer = CartSerializer(cart)
+        serializer = CartSerializer(cart, context={"request": request})
         return Response(serializer.data)
 
     def post(self, request, pk=None):
@@ -34,6 +33,23 @@ class CartView(APIView):
         cart = Cart.objects.filter(owner=user.id).first()
         cart.shop_items.add(shop_item)
         return Response(status=status.HTTP_200_OK)
+
+
+class FirstLoadDataView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        """ Возвращает корзину пользователя """
+        user = self.request.user
+        total_cost = 0
+        cart = Cart.objects.filter(owner=user.id).first()
+        favorites = Favorites.objects.filter(owner=user.id).first()
+        for item in cart.shop_items.all():
+            total_cost += item.price
+        return JsonResponse({
+            'totalCostCart': round(total_cost, 2),
+            'countFavoriteItems': favorites.shop_items.all().count(),
+        })
 
 
 class CartDetailView(APIView):
@@ -62,7 +78,8 @@ class FavoriteView(APIView):
         """ Возвращает корзину пользователя """
         user = self.request.user
         favorites = self.get_object(user.id)
-        serializer = FavoritesSerializer(favorites)
+        serializer = FavoritesSerializer(
+            favorites, context={"request": request})
         return Response(serializer.data)
 
     def post(self, request, productId=None):

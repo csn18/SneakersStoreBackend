@@ -5,11 +5,14 @@ from django.urls import path, include
 from rest_framework import routers
 
 from Auth.views import UserProfileVIew
-from Shop.views import ShopItemView, CartView, CartDetailView, FavoriteView, FavoriteDetailView
+from Shop.views import ShopItemView, CartView, CartDetailView, FavoriteView, \
+    FavoriteDetailView, FirstLoadDataView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+
+from backend import routing
 
 router = routers.DefaultRouter()
 router.register(r'items', ShopItemView)
@@ -24,6 +27,8 @@ urlpatterns = [
 
     path('api/user/profile/', UserProfileVIew.as_view(),
          name='user_profile_view'),
+    path('api/first-load/', FirstLoadDataView.as_view(), name='first_load'),
+
 
     path('api/user/cart/', CartView.as_view(), name='user_cart_view'),
     path('api/user/cart/item/<int:pk>/', CartDetailView.as_view(),
