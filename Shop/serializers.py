@@ -23,11 +23,9 @@ class ShopItemImagesSerializers(serializers.ModelSerializer):
 class ShopItemSerializer(serializers.HyperlinkedModelSerializer):
     """ Serializer продукта """
     brand = serializers.SlugRelatedField(
-        slug_field='brand_name', read_only=True
-    )
+        slug_field='brand_name', read_only=True)
     sizes = serializers.SlugRelatedField(
-        slug_field='size', read_only=True, many=True
-    )
+        slug_field='size', read_only=True, many=True)
     images = ShopItemImagesSerializers(many=True)
 
     class Meta:

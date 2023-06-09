@@ -1,18 +1,19 @@
-from django.conf import settings
-from django.conf.urls.static import static
-from django.contrib import admin
-from django.urls import path, include
 from rest_framework import routers
 
+from django.conf import settings
+from django.contrib import admin
+from django.urls import path, include
+from django.conf.urls.static import static
+
 from Auth.views import UserProfileVIew
-from Shop.views import ShopItemView, CartView, CartDetailView, FavoriteView, \
+from Shop.views import (
+    ShopItemView, CartView, CartDetailView, FavoriteView,
     FavoriteDetailView, FirstLoadDataView
+)
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
-
-from backend import routing
 
 router = routers.DefaultRouter()
 router.register(r'items', ShopItemView)

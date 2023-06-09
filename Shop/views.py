@@ -1,4 +1,5 @@
 from django.http import Http404, JsonResponse
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import permissions, status
@@ -10,9 +11,16 @@ from Shop.serializers import (
 from Shop.models import ShopItem, Cart, Favorites
 
 
+class ShopItemPagination(PageNumberPagination):
+    page_size = 15
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
+
 class ShopItemView(ModelViewSet):
     queryset = ShopItem.objects.all()
     serializer_class = ShopItemSerializer
+    pagination_class = ShopItemPagination
 
 
 class CartView(APIView):
@@ -75,7 +83,7 @@ class FavoriteView(APIView):
         return Favorites.objects.filter(owner=user_id).first()
 
     def get(self, request, productId=None):
-        """ Возвращает корзину пользователя """
+        """ Возвращает избранные пользователя """
         user = self.request.user
         favorites = self.get_object(user.id)
         serializer = FavoritesSerializer(
@@ -83,7 +91,7 @@ class FavoriteView(APIView):
         return Response(serializer.data)
 
     def post(self, request, productId=None):
-        """ Добавляет товар в корзину """
+        """ Добавляет избранное в корзину """
         user = self.request.user
         item_id = request.data.get('itemId')
         shop_item = ShopItem.objects.filter(id=item_id).first()
@@ -94,7 +102,6 @@ class FavoriteView(APIView):
         else:
             favorites = Favorites.objects.create(owner_id=user.id)
             favorites.shop_items.add(shop_item)
-
             return Response(status=status.HTTP_200_OK)
 
 

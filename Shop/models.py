@@ -22,13 +22,12 @@ class Brand(models.Model):
 class ShopItem(models.Model):
     """ Товар """
     title = models.CharField(verbose_name='Название товара', max_length=255)
-    description = models.TextField(verbose_name='Описание', max_length=4096)
+    description = models.TextField(
+        verbose_name='Описание', max_length=4096, blank=True, null=True)
     price = models.DecimalField(
-        verbose_name='Стоимость', decimal_places=2, max_digits=12
-    )
+        verbose_name='Стоимость', decimal_places=2, max_digits=12)
     brand = models.ForeignKey(
-        verbose_name='Бренд', to=Brand, on_delete=models.CASCADE
-    )
+        verbose_name='Бренд', to=Brand, on_delete=models.CASCADE, default=0)
     sizes = models.ManyToManyField(verbose_name='Размеры', to=Sizes)
 
     def __str__(self):
