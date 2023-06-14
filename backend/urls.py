@@ -8,7 +8,7 @@ from django.conf.urls.static import static
 from Auth.views import UserProfileVIew
 from Shop.views import (
     ShopItemView, CartView, CartDetailView, FavoriteView,
-    FavoriteDetailView, FirstLoadDataView
+    FavoriteDetailView, FirstLoadDataView, FilterList
 )
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -39,6 +39,8 @@ urlpatterns = [
          name='user_favorite_view'),
     path('api/user/favorite/<int:pk>/', FavoriteDetailView.as_view(),
          name='user_favorite_detail_view'),
+
+    path('api/filters/', FilterList.as_view(), name='all_filters'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,14 +1,16 @@
 from django.http import Http404, JsonResponse
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import permissions, status
 from rest_framework.response import Response
 
+from Shop.filters import ShopItemFilter
 from Shop.serializers import (
-    ShopItemSerializer, CartSerializer, FavoritesSerializer
+    ShopItemSerializer, CartSerializer, FavoritesSerializer, FilterSerializer
 )
-from Shop.models import ShopItem, Cart, Favorites
+from Shop.models import ShopItem, Cart, Favorites, Brand
 
 
 class ShopItemPagination(PageNumberPagination):
@@ -21,6 +23,8 @@ class ShopItemView(ModelViewSet):
     queryset = ShopItem.objects.all()
     serializer_class = ShopItemSerializer
     pagination_class = ShopItemPagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ('brand', )
 
 
 class CartView(APIView):
@@ -54,9 +58,12 @@ class FirstLoadDataView(APIView):
         favorites = Favorites.objects.filter(owner=user.id).first()
         for item in cart.shop_items.all():
             total_cost += item.price
+
         return JsonResponse({
             'totalCostCart': round(total_cost, 2),
             'countFavoriteItems': favorites.shop_items.all().count(),
+            'favoriteItemsId': list(favorites.shop_items.all().values('id', 'title')),
+            'cartItemsId': list(cart.shop_items.all().values('id', 'title')),
         })
 
 
@@ -119,3 +126,15 @@ class FavoriteDetailView(APIView):
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+class FilterList(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        all_brands = Brand.objects.all()
+        serializer_brands = FilterSerializer(all_brands,  many=True).data
+
+        return JsonResponse({
+            'brands': serializer_brands
+        })
