@@ -1,3 +1,4 @@
+from django.db.models import Max, Min
 from django.http import Http404, JsonResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import PageNumberPagination
@@ -8,23 +9,24 @@ from rest_framework.response import Response
 
 from Shop.filters import ShopItemFilter
 from Shop.serializers import (
-    ShopItemSerializer, CartSerializer, FavoritesSerializer, FilterSerializer
+    ShopItemSerializer, CartSerializer, FavoritesSerializer, FilterSerializer,
+    SizesSerializer
 )
-from Shop.models import ShopItem, Cart, Favorites, Brand
+from Shop.models import ShopItem, Cart, Favorites, Brand, Sizes
 
 
 class ShopItemPagination(PageNumberPagination):
-    page_size = 15
+    page_size = 12
     page_size_query_param = 'page_size'
     max_page_size = 100
 
 
 class ShopItemView(ModelViewSet):
-    queryset = ShopItem.objects.all()
+    queryset = ShopItem.objects.all().distinct()
     serializer_class = ShopItemSerializer
     pagination_class = ShopItemPagination
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ('brand', )
+    filterset_class = ShopItemFilter
 
 
 class CartView(APIView):
@@ -62,7 +64,8 @@ class FirstLoadDataView(APIView):
         return JsonResponse({
             'totalCostCart': round(total_cost, 2),
             'countFavoriteItems': favorites.shop_items.all().count(),
-            'favoriteItemsId': list(favorites.shop_items.all().values('id', 'title')),
+            'favoriteItemsId': list(
+                favorites.shop_items.all().values('id', 'title')),
             'cartItemsId': list(cart.shop_items.all().values('id', 'title')),
         })
 
@@ -133,8 +136,15 @@ class FilterList(APIView):
 
     def get(self, request):
         all_brands = Brand.objects.all()
-        serializer_brands = FilterSerializer(all_brands,  many=True).data
+        all_sizes = Sizes.objects.all()
+        serializer_brands = FilterSerializer(all_brands, many=True).data
+        serializer_sizes = SizesSerializer(all_sizes, many=True).data
+        max_price = ShopItem.objects.aggregate(Max('price')).get('price__max')
+        min_price = ShopItem.objects.aggregate(Min('price')).get('price__min')
 
         return JsonResponse({
-            'brands': serializer_brands
+            'brands': serializer_brands,
+            'sizes': serializer_sizes,
+            'max_price': int(max_price),
+            'min_price': int(min_price),
         })

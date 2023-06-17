@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from Shop.models import ShopItem, ItemImage, Cart, Favorites, Brand
+from Shop.models import ShopItem, ItemImage, Cart, Favorites, Brand, Sizes
 
 
 class ShopItemImagesSerializers(serializers.ModelSerializer):
@@ -48,6 +48,12 @@ class FilterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Brand
         fields = ['id', 'brand_name']
+
+
+class SizesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sizes
+        fields = ['id', 'size']
 
 
 class FavoritesSerializer(serializers.ModelSerializer):
