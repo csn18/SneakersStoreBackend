@@ -12,6 +12,7 @@ from Shop.serializers import CartSerializer, ShopItemSerializer
 def update_product(sender, **kwargs):
     channel_layer = get_channel_layer()
     instance = kwargs['instance']
+
     if not kwargs['created']:
         async_to_sync(channel_layer.group_send)(
             'room',
@@ -27,6 +28,7 @@ def update_product(sender, **kwargs):
 def update_cart(sender, **kwargs):
     channel_layer = get_channel_layer()
     instance = kwargs['instance']
+
     if not kwargs['created']:
         transaction.on_commit(
             lambda: async_to_sync(channel_layer.group_send)(

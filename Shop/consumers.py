@@ -30,5 +30,4 @@ class SyncProductsConsumer(WebsocketConsumer):
         self.send(text_data=json.dumps(event))
 
     def update_cart(self, event):
-        print(event)
         self.send(text_data=json.dumps(event))

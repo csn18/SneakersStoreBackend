@@ -36,7 +36,7 @@ class CartView(APIView):
         """ Возвращает корзину пользователя """
         user = self.request.user
         cart = Cart.objects.filter(owner=user.id).first()
-        serializer = CartSerializer(cart, context={"request": request})
+        serializer = CartSerializer(cart, context={'request': request})
         return Response(serializer.data)
 
     def post(self, request, pk=None):
@@ -55,18 +55,18 @@ class FirstLoadDataView(APIView):
     def get(self, request):
         """ Возвращает корзину пользователя """
         user = self.request.user
-        total_cost = 0
         cart = Cart.objects.filter(owner=user.id).first()
         favorites = Favorites.objects.filter(owner=user.id).first()
-        for item in cart.shop_items.all():
-            total_cost += item.price
+        total_cost = sum([item.price for item in cart.shop_items.all()])
+
+        favorite_items = list(favorites.shop_items.all().values('id', 'title'))
+        cart_items = list(cart.shop_items.all().values('id', 'title'))
+        total_cost = round(total_cost, 2)
 
         return JsonResponse({
-            'totalCostCart': round(total_cost, 2),
-            'countFavoriteItems': favorites.shop_items.all().count(),
-            'favoriteItemsId': list(
-                favorites.shop_items.all().values('id', 'title')),
-            'cartItemsId': list(cart.shop_items.all().values('id', 'title')),
+            'favoriteItemsId': favorite_items,
+            'totalCostCart': total_cost,
+            'cartItemsId': cart_items,
         })
 
 
@@ -97,7 +97,7 @@ class FavoriteView(APIView):
         user = self.request.user
         favorites = self.get_object(user.id)
         serializer = FavoritesSerializer(
-            favorites, context={"request": request}
+            favorites, context={'request': request}
         )
         return Response(serializer.data)
 
@@ -136,6 +136,7 @@ class FilterList(APIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request):
+        """ Получение данных для первой загрузки """
         all_brands = Brand.objects.all()
         all_sizes = Sizes.objects.all()
         serializer_brands = FilterSerializer(all_brands, many=True).data
