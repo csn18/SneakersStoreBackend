@@ -4,11 +4,13 @@ from django.db.models.signals import post_save
 from asgiref.sync import async_to_sync
 from django.dispatch import receiver
 
-from Shop.models import ShopItem, Cart
-from Shop.serializers import CartSerializer, ShopItemSerializer
+from Consumer.models import Cart
+from Consumer.serializers import CartSerializer
+from Seller.models import ProductItem
+from Shop.serializers import ShopItemSerializer
 
 
-@receiver(post_save, sender=ShopItem)
+@receiver(post_save, sender=ProductItem)
 def update_product(sender, **kwargs):
     channel_layer = get_channel_layer()
     instance = kwargs['instance']

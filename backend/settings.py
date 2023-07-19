@@ -23,6 +23,8 @@ INSTALLED_APPS = [
 
     'Shop.apps.ShopConfig',
     'Auth.apps.AuthConfig',
+    'Seller.apps.SellerConfig',
+    'Consumer.apps.ConsumerConfig',
 
     'corsheaders',
     'django_filters',
@@ -100,6 +102,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, '')
 MEDIA_URL = ''
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+AUTH_USER_MODEL = 'Auth.User'
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',

@@ -1,6 +1,6 @@
 from django_filters import rest_framework as rest_filters, NumberFilter
 
-from Shop.models import ShopItem
+from Seller.models import ProductItem
 
 
 class NumberInFilter(rest_filters.BaseInFilter, rest_filters.NumberFilter):
@@ -15,5 +15,5 @@ class ShopItemFilter(rest_filters.FilterSet):
     price = rest_filters.RangeFilter()
 
     class Meta:
-        model = ShopItem
+        model = ProductItem
         fields = ['brand', 'sizes', 'price']

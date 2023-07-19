@@ -1,19 +1,24 @@
 from rest_framework import serializers
-from Shop.models import ShopItem, ItemImage, Cart, Favorites, Brand, Sizes
+
+from Consumer.models import Cart, Favorites
+from Seller.models import ProductImage, ProductItem, ProductBrand, \
+    ProductSizes, Seller
 
 
 class ShopItemImagesSerializers(serializers.ModelSerializer):
     """ Serializer фотографий продукта """
-    image = serializers.SerializerMethodField()
 
     class Meta:
-        model = ItemImage
+        model = ProductImage
         fields = ['id', 'image']
 
-    def get_image(self, item):
-        request = self.context.get('request')
-        image = item.image.url
-        return request.build_absolute_uri(image)
+
+class SellerSerializers(serializers.ModelSerializer):
+    """ Serializer продавца """
+
+    class Meta:
+        model = Seller
+        fields = ['id', 'fio', 'phone']
 
 
 class ShopItemSerializer(serializers.HyperlinkedModelSerializer):
@@ -23,39 +28,24 @@ class ShopItemSerializer(serializers.HyperlinkedModelSerializer):
     sizes = serializers.SlugRelatedField(
         slug_field='size', read_only=True, many=True)
     images = ShopItemImagesSerializers(many=True)
+    seller = SellerSerializers(many=False)
 
     class Meta:
-        model = ShopItem
+        model = ProductItem
         fields = [
-            'id', 'title', 'description', 'price', 'brand', 'sizes', 'images'
+            'id', 'title', 'desc', 'price', 'brand', 'sizes', 'images',
+            'seller'
         ]
-
-
-class CartSerializer(serializers.ModelSerializer):
-    """ Serializer корзины продуктов """
-    shop_items = ShopItemSerializer(read_only=True, many=True)
-
-    class Meta:
-        model = Cart
-        fields = '__all__'
 
 
 class FilterSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Brand
+        model = ProductBrand
         fields = ['id', 'brand_name']
 
 
 class SizesSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Sizes
+        model = ProductSizes
         fields = ['id', 'size']
 
-
-class FavoritesSerializer(serializers.ModelSerializer):
-    """ Serializer корзины продуктов """
-    shop_items = ShopItemSerializer(read_only=True, many=True)
-
-    class Meta:
-        model = Favorites
-        fields = '__all__'

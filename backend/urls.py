@@ -6,9 +6,10 @@ from django.urls import path, include
 from django.conf.urls.static import static
 
 from Auth.views import UserProfileVIew
+from Consumer.views import CartView, CartDetailView, FavoriteView, \
+    FavoriteDetailView
 from Shop.views import (
-    ShopItemView, CartView, CartDetailView, FavoriteView,
-    FavoriteDetailView, FirstLoadDataView, FilterList
+    ShopItemView, FirstLoadDataView, FilterList
 )
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
